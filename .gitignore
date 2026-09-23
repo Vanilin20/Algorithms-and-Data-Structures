@@ -1,0 +1,14 @@
+# Результати збірки
+bin/
+obj/
+
+# Налаштування IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Системні файли
+.DS_Store
+Thumbs.db
