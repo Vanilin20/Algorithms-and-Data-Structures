@@ -1,90 +1,53 @@
 ﻿using System;
 
-class Program
+namespace Lab3
 {
-    public static int comparisons = 0;
-
-    static void Main()
+    internal class Program
     {
-        int[] data = { 42, 8, 60, 19, 3, 55, 12, 31, 68, 24, 49, 37, 71, 5, 27 };
-
-        int[] sortedData = (int[])data.Clone();
-        Array.Sort(sortedData);
-
-        Report("linear", sortedData, 3);
-        Report("binary", sortedData, 3);
-
-        Report("linear", sortedData, 71);
-        Report("binary", sortedData, 71);
-
-        Report("linear", sortedData, 31);
-        Report("binary", sortedData, 31);
-
-        Report("linear", sortedData, 1);
-        Report("binary", sortedData, 1);
-
-        Report("linear", sortedData, 99);
-        Report("binary", sortedData, 99);
-
-        Report("linear", sortedData, 50);
-        Report("binary", sortedData, 50);
-
-        Report("linear", new int[] { 42 }, 42);
-        Report("binary", new int[] { 42 }, 42);
-
-        Report("linear", new int[] { }, 42);
-        Report("binary", new int[] { }, 42);
-
-        Report("binary", data, 55);
-    }
-
-    public static int LinearSearch(int[] items, int target)
-    {
-        for (int i = 0; i < items.Length; i++)
+        static void Main(string[] args)
         {
-            comparisons++;
-            if (items[i] == target)
-            {
-                return i;
-            }
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            Console.WriteLine("=== СЦЕНАРІЙ 1: Використання оператора using ===");
+            Scenario1_Using();
+
+            Console.WriteLine("\n=== СЦЕНАРІЙ 2: Явний виклик Dispose() ===");
+            Scenario2_ExplicitDispose();
+
+            Console.WriteLine("\n=== СЦЕНАРІЙ 3: Об'єкт без Dispose (робота GC) ===");
+            Scenario3_GarbageCollector();
+
+            Console.WriteLine("\nПрограма завершила роботу.");
         }
-        return -1;
-    }
 
-    public static int BinarySearch(int[] items, int target)
-    {
-        int low = 0;
-        int high = items.Length - 1;
-
-        while (low <= high)
+        static void Scenario1_Using()
         {
-            int mid = (low + high) / 2;
-            comparisons++;
-
-            if (items[mid] == target)
+            using (var sensor = new SensorReader(101))
             {
-                return mid;
-            }
-            else if (items[mid] < target)
-            {
-                low = mid + 1;
-            }
-            else
-            {
-                high = mid - 1;
+                sensor.ReadValue();
             }
         }
 
-        return -1;
-    }
+        static void Scenario2_ExplicitDispose()
+        {
+            var sensor = new SensorReader(202);
+            sensor.ReadValue();
+            sensor.Dispose();
+        }
 
-    public static void Report(string name, int[] items, int target)
-    {
-        comparisons = 0;
-        int index = (name == "linear") 
-            ? LinearSearch(items, target) 
-            : BinarySearch(items, target);
+        static void Scenario3_GarbageCollector()
+        {
+            void CreateUnreferencedSensor()
+            {
+                var sensor = new SensorReader(303);
+                sensor.ReadValue();
+            }
 
-        Console.WriteLine($"{name,-7} | target: {target,-2} | index: {index,-2} | comparisons: {comparisons}");
+            CreateUnreferencedSensor();
+
+            Console.WriteLine("Запуск GC.Collect()...");
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
     }
 }
